@@ -1,0 +1,66 @@
+[package]
+name = "twitch-irc"
+description = "Connect to Twitch chat from a Rust application."
+license = "MIT"
+version = "5.0.1"
+authors = ["Ruben Anders <ruben.anders@robotty.de>"]
+keywords = ["twitch", "twitch-irc", "twitch-api"]
+categories = ["api-bindings", "asynchronous", "network-programming", "parser-implementations"]
+repository = "https://github.com/robotty/twitch-irc-rs"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# https://docs.rs/about/metadata
+[package.metadata.docs.rs]
+# If updating this make sure to update workflows/rust.yml too
+features = [
+    "refreshing-token-rustls-webpki-roots",
+    "transport-tcp",
+    "transport-tcp-rustls-webpki-roots",
+    "transport-ws",
+    "transport-ws-rustls-webpki-roots",
+    "metrics-collection",
+    "with-serde"
+]
+no-default-features = true
+
+[dependencies]
+
+[dev-dependencies]
+maplit = "1"
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread"] }
+tracing-subscriber = "0.3"
+# For the metrics example
+axum = "0.6"
+
+[lib]
+name = "twitch_irc"
+path = "src/lib.rs"
+
+[[example]]
+name = "simple_listener"
+required-features = ["transport-tcp", "transport-tcp-native-tls"]
+
+[[example]]
+name = "metrics"
+required-features = ["transport-tcp", "transport-tcp-native-tls", "metrics-collection"]
+
+[features]
+# If you add a feature here don't forget to add it to the test workflow in workflows/rust.yml!
+default = ["transport-tcp", "transport-tcp-native-tls"]
+refreshing-token-native-tls = ["reqwest/native-tls", "__refreshing-token"]
+refreshing-token-rustls-native-roots = ["reqwest/rustls-tls-native-roots", "__refreshing-token"]
+refreshing-token-rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots", "__refreshing-token"]
+__refreshing-token = ["with-serde", "chrono/clock"]
+transport-tcp = ["bytes", "tokio/net", "tokio/io-util", "tokio-util", "tokio-stream"]
+transport-tcp-native-tls = ["transport-tcp", "tokio-native-tls"]
+transport-tcp-rustls-native-roots = ["transport-tcp", "tokio-rustls", "rustls-native-certs"]
+transport-tcp-rustls-webpki-roots = ["transport-tcp", "tokio-rustls", "webpki-roots"]
+transport-ws = ["async-tungstenite", "tokio-util"]
+transport-ws-native-tls = ["transport-ws", "async-tungstenite/tokio-native-tls"]
+transport-ws-rustls-native-roots = ["transport-ws", "async-tungstenite/tokio-rustls-native-certs"]
+transport-ws-rustls-webpki-roots = ["transport-ws", "async-tungstenite/tokio-rustls-webpki-roots"]
+metrics-collection = ["prometheus"]
+with-serde = ["serde", "chrono/serde"]
